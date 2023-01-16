@@ -9,7 +9,7 @@ class adminCompanyController extends Controller
 {
     public function index()
     {
-        return view('admin.company.index',[
+        return view('admin.company.index', [
             'company' => company::latest()->paginate(5),
         ]);
     }
@@ -22,26 +22,24 @@ class adminCompanyController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate(company::rules());
-        if($request->logo){
+        if ($request->logo) {
             $path = $request->logo->store('app/logos', 'public');
             $validatedData['logo'] = $path;
         }
-        
-        Company::create($validatedData);
 
-        return redirect('/adminCompany');
+        company::create($validatedData);
+
+        return redirect('/adminCompany')->with('success', 'Company store successfully!');
     }
 
     public function show($id)
     {
-
     }
 
     public function edit($id)
     {
-
         $comapny = company::findOrFail($id);
-        return view('admin.company.edit',compact('comapny'));
+        return view('admin.company.edit', compact('comapny'));
     }
 
     public function update(Request $request, $id)
@@ -52,17 +50,15 @@ class adminCompanyController extends Controller
             'logo' => 'sometimes|mimes:jpeg,jpg,png|dimensions:min_width=100,min_height=100|max:3000',
             'website' => 'required',
         ]);
-        if($validatedData['logo'] ?? false){
-            $path = $request->logo->store('app/logos','public');
+        if ($validatedData['logo'] ?? false) {
+            $path = $request->logo->store('app/logos', 'public');
             $validatedData['logo'] = $path;
         }
-        
-    
+
         $company = company::findOrFail($id);
         $company->update($validatedData);
-        
-        return redirect('/adminCompany')->with('success', 'Company updated successfully!');
 
+        return redirect('/adminCompany')->with('success', 'Company updated successfully!');
     }
 
     public function destroy($id)
@@ -70,12 +66,11 @@ class adminCompanyController extends Controller
         $company = company::find($id);
 
         if (!$company) {
-            return redirect()->back()->with('error', 'Company not found.');
+            return redirect('/adminCompany')->with('error', 'Company not found.');
         }
 
         $company->delete();
 
-
-        return redirect('/adminCompany');
+        return redirect('/adminCompany')->with('error', 'delete is done.');;
     }
 }

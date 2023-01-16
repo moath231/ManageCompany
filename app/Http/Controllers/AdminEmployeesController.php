@@ -25,7 +25,7 @@ class AdminEmployeesController extends Controller
 
         employee::create($valiDateEmployeeData);
 
-        return redirect('/adminEmployee');
+        return redirect('/adminEmployee')->with('success', 'employee store successfully!');
     }
 
     public function show($id)
@@ -40,10 +40,31 @@ class AdminEmployeesController extends Controller
 
     public function update(Request $request, $id)
     {
-        ddd($request->all());
+        $phone_regex = '/^07[0-9]{8}$/';
+        $attributes = $request->validate([
+            'Fname' => 'required',
+            'Lname' => 'required',
+            'company_id' => 'sometimes',
+            'email' => 'required|email',
+            'phone' => ['required',"regex:$phone_regex"],
+        ]);
+        $employee = employee::find($id);
+
+        $employee->update($attributes);
+
+        return redirect('/adminEmployee')->with('success', 'employee updated successfully!');
     }
 
     public function destroy($id)
     {
+        $e = employee::find($id);
+
+        if (!$e) {
+            return redirect('/adminEmployee')->with('error', 'employee not found.');
+        }
+
+        $e->delete();
+
+        return redirect('/adminEmployee')->with('error', 'delete is done.');
     }
 }
